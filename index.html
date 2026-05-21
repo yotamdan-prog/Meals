@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מחשבון קלוריות וגרעון יומי</title>
+    <!-- Tailwind CSS לעיצוב מהיר ונקי -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-gray-100 text-gray-800 font-sans">
+
+    <div class="max-w-6xl mx-auto p-4 md:p-8">
+        <!-- כותרת ראשית ונתוני יעד -->
+        <header class="bg-white rounded-2xl shadow-sm p-6 mb-6 text-center border-b-4 border-emerald-500">
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">מחשבון תזונה ואימונים יומי</h1>
+            <p class="text-gray-600 font-medium">פרופיל: גבר בן 42 | משקל: 80 ק"ג | יעד: גרעון קלורי בריא</p>
+            <div class="mt-4 inline-block bg-emerald-50 text-emerald-800 px-4 py-2 rounded-full font-semibold text-sm">
+                יעד בסיס לגרעון: <span class="font-bold">1,550 קלוריות</span> (לפני קיזז ספורט)
+            </div>
+        </header>
+
+        <!-- אזור ראשי מחולק ל-3 עמודות במחשב -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            
+            <!-- עמודה 1: תפריט מאכלים -->
+            <div class="bg-white p-5 rounded-2xl shadow-sm">
+                <h2 class="text-xl font-bold mb-4 flex items-center gap-2 text-amber-600">
+                    <span>🥑</span> תפריט מאכלים
+                </h2>
+                <div id="food-list" class="space-y-2 max-h-[500px] overflow-y-auto pr-1">
+                    <p class="text-gray-400 text-sm">טוען מאכלים...</p>
+                </div>
+            </div>
+
+            <!-- עמודה 2: תפריט אימונים -->
+            <div class="bg-white p-5 rounded-2xl shadow-sm">
+                <h2 class="text-xl font-bold mb-4 flex items-center gap-2 text-blue-600">
+                    <span>🏃‍♂️</span> אימונים שנערכו היום
+                </h2>
+                <div id="sport-list" class="space-y-2 mb-6">
+                    <p class="text-gray-400 text-sm">טוען אימונים...</p>
+                </div>
+
+                <hr class="border-gray-100 my-4">
+
+                <!-- רשימת הפריטים שנבחרו בפועל -->
+                <h3 class="font-bold text-gray-700 mb-2 text-sm">מה אכלת היום:</h3>
+                <ul id="selected-food-items" class="text-sm space-y-1 text-gray-600 max-h-[200px] overflow-y-auto">
+                    <li class="text-gray-400 italic">טרם נבחרו מאכלים</li>
+                </ul>
+            </div>
+
+            <!-- עמודה 3: לוח תוצאות וסיכומים -->
+            <div class="bg-zinc-900 text-white p-6 rounded-2xl shadow-lg flex flex-col justify-between">
+                <div>
+                    <h2 class="text-xl font-bold mb-6 text-center border-b border-zinc-700 pb-3">סיכום יומי</h2>
+                    
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center bg-zinc-800 p-3 rounded-xl">
+                            <span class="text-zinc-400">קלוריות שנכנסו:</span>
+                            <span id="total-calories" class="text-xl font-bold text-amber-400">0</span>
+                        </div>
+
+                        <div class="flex justify-between items-center bg-zinc-800 p-3 rounded-xl">
+                            <span class="text-zinc-400">חלבון שנצרך:</span>
+                            <span id="total-protein" class="text-xl font-bold text-emerald-400">0 ג'</span>
+                        </div>
+
+                        <div class="flex justify-between items-center bg-zinc-800 p-3 rounded-xl">
+                            <span class="text-zinc-400">קלוריות שנשרפו בספורט:</span>
+                            <span id="sport-calories" class="text-xl font-bold text-blue-400">0-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- סטטוס היעד המשתנה דינמית -->
+                <div class="mt-8 pt-4 border-t border-zinc-700 text-center">
+                    <div class="text-zinc-400 text-xs mb-1">יעד קלורי מעודכן (כולל ספורט):</div>
+                    <div id="dynamic-target" class="text-2xl font-black text-white mb-3">1550</div>
+                    
+                    <div id="status-badge" class="py-2 px-4 rounded-xl text-sm font-bold bg-zinc-800 text-zinc-300">
+                        התחל להכניס נתונים
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- לוגיקת האפליקציה -->
+    <script>
+        // הגדרות בסיס קבועות לגבר בן 42, משקל 80 ק"ג
+        const BASE_DEFICIT_TARGET = 1550;
+
+        // מצב האפליקציה (State)
+        let foods = [];
+        let sports = [];
+        let selectedFoods = []; // מערך שיחזיק אובייקטים של מאכלים שנבחרו
+        let selectedSports = new Set(); // סט שיחזיק מזהי אימונים שבוצעו
+
+        // טעינת הנתונים מהקבצים החיצוניים
+        async function loadData() {
+            try {
+                const [foodResponse, sportResponse] = await Promise.all([
+                    fetch('food.json'),
+                    fetch('sport.json')
+                ]);
+                
+                foods = await foodResponse.json();
+                sports = await sportResponse.json();
+                
+                renderMenus();
+            } catch (error) {
+                console.error("שגיאה בטעינת קובצי ה-JSON:", error);
+                alert("לא ניתן לטעון את הנתונים. ודא שהאתר רץ על שרת מקומי (Local Server).");
+            }
+        }
+
+        // רינדור התפריטים למסך
+        function renderMenus() {
+            // מאכלים
+            const foodListContainer = document.getElementById('food-list');
+            foodListContainer.innerHTML = foods.map(item => `
+                <button onclick="addFood(${item.id})" class="w-full text-right bg-gray-50 hover:bg-amber-50 border border-gray-200 hover:border-amber-300 p-3 rounded-xl transition flex justify-between items-center group">
+                    <span class="font-medium text-gray-700 group-hover:text-amber-900">${item.name}</span>
+                    <span class="text-xs text-gray-400 bg-white px-2 py-1 rounded-md border border-gray-100">
+                        ${item.calories} קל' | ${item.protein}ג' חלבון
+                    </span>
+                </button>
+            `).join('');
+
+            // ספורט
+            const sportListContainer = document.getElementById('sport-list');
+            sportListContainer.innerHTML = sports.map(item => `
+                <label class="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-200 cursor-pointer hover:bg-blue-50 transition">
+                    <div class="flex items-center gap-3">
+                        <input type="checkbox" onchange="toggleSport(${item.id}, this.checked)" class="w-4 h-4 text-blue-600 rounded">
+                        <span class="font-medium text-gray-700">${item.name}</span>
+                    </div>
+                    <span class="text-xs font-semibold text-blue-600 bg-blue-50 px-2 py-1 rounded-md">
+                        ${item.caloriesBurned}+ קל'
+                    </span>
+                </label>
+            `).join('');
+        }
+
+        // הוספת מאכל לרשימה היומית
+        function addFood(id) {
+            const foodItem = foods.find(f => f.id === id);
+            if (foodItem) {
+                selectedFoods.push({ ...foodItem, uniqueId: Date.now() + Math.random() });
+                updateCalculations();
+            }
+        }
+
+        // הסרת מאכל מהרשימה היומית
+        function removeFood(uniqueId) {
+            selectedFoods = selectedFoods.filter(item => item.uniqueId !== uniqueId);
+            updateCalculations();
+        }
+
+        // סימון/ביטול סימון של אימון
+        function toggleSport(id, isChecked) {
+            if (isChecked) {
+                selectedSports.add(id);
+            } else {
+                selectedSports.delete(id);
+            }
+            updateCalculations();
+        }
+
+        // חישוב מחדש ועדכון התצוגה
+        function updateCalculations() {
+            // 1. חישוב ערכים תזונתיים שנצרכו
+            let totalCalories = 0;
+            let totalProtein = 0;
+            selectedFoods.forEach(item => {
+                totalCalories += item.calories;
+                totalProtein += item.protein;
+            });
+
+            // 2. חישוב קלוריות שנשרפו בספורט
+            let sportCaloriesBurned = 0;
+            selectedSports.forEach(id => {
+                const sport = sports.find(s => s.id === id);
+                if (sport) sportCaloriesBurned += sport.caloriesBurned;
+            });
+
+            // 3. עדכון יעד קלורי דינמי (גרעון בסיס + מה שנשרף בספורט מאפשר לאכול יותר)
+            const dynamicTarget = BASE_DEFICIT_TARGET + sportCaloriesBurned;
+
+            // עדכון האלמנטים ב-HTML
+            document.getElementById('total-calories').innerText = Math.round(totalCalories);
+            document.getElementById('total-protein').innerText = totalProtein.toFixed(1) + " ג'";
+            document.getElementById('sport-calories').innerText = sportCaloriesBurned > 0 ? `-${sportCaloriesBurned}` : '0';
+            document.getElementById('dynamic-target').innerText = Math.round(dynamicTarget);
+
+            // עדכון רשימת המאכלים שנבחרו (הצגה ויזואלית)
+            const selectedContainer = document.getElementById('selected-food-items');
+            if (selectedFoods.length === 0) {
+                selectedContainer.innerHTML = '<li class="text-gray-400 italic">טרם נבחרו מאכלים</li>';
+            } else {
+                selectedContainer.innerHTML = selectedFoods.map(item => `
+                    <li class="flex justify-between items-center bg-gray-50 p-2 rounded-lg mb-1 border border-gray-100">
+                        <span>${item.name}</span>
+                        <button onclick="removeFood(${item.uniqueId})" class="text-red-500 hover:text-red-700 font-bold px-1 text-xs">❌</button>
+                    </li>
+                `).join('');
+            }
+
+            // עדכון באדג' הסטטוס (האם המשתמש בגרעון)
+            const statusBadge = document.getElementById('status-badge');
+            const netCalories = totalCalories; // צריכה נטו אל מול היעד המותאם
+
+            if (selectedFoods.length === 0 && selectedSports.size === 0) {
+                statusBadge.className = "py-2 px-4 rounded-xl text-sm font-bold bg-zinc-800 text-zinc-300";
+                statusBadge.innerText = "התחל להכניס נתונים";
+            } else if (netCalories <= dynamicTarget) {
+                statusBadge.className = "py-2 px-4 rounded-xl text-sm font-bold bg-emerald-900 text-emerald-300";
+                statusBadge.innerText = `אתה בגרעון! נותרו עוד ${Math.round(dynamicTarget - netCalories)} קלוריות`;
+            } else {
+                statusBadge.className = "py-2 px-4 rounded-xl text-sm font-bold bg-red-900 text-red-300";
+                statusBadge.innerText = `חרגת מהיעד ב-${Math.round(netCalories - dynamicTarget)} קלוריות`;
+            }
+        }
+
+        // הרצה ראשונית עם טעינת הדף
+        window.onload = loadData;
+    </script>
+</body>
+</html>

@@ -1,0 +1,5 @@
+[
+  { "id": 1, "name": "ריצה של שעה", "caloriesBurned": 800 },
+  { "id": 2, "name": "אימון פונקציונלי", "caloriesBurned": 500 },
+  { "id": 3, "name": "שעה אופניים", "caloriesBurned": 650 }
+]

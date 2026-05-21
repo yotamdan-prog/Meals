@@ -1,0 +1,23 @@
+[
+  { "id": 1, "name": "ביצה קשה", "calories": 78, "protein": 6.3 },
+  { "id": 2, "name": "קערת קינואה", "calories": 220, "protein": 8.0 },
+  { "id": 3, "name": "טונה במים", "calories": 120, "protein": 26.0 },
+  { "id": 4, "name": "כף גרגרי חומוס", "calories": 45, "protein": 1.5 },
+  { "id": 5, "name": "חצי אבוקדו", "calories": 160, "protein": 2.0 },
+  { "id": 6, "name": "5 עגבניות שרי", "calories": 15, "protein": 0.5 },
+  { "id": 7, "name": "סלט ירקות", "calories": 60, "protein": 2.0 },
+  { "id": 8, "name": "פרוסת לחם מלא", "calories": 80, "protein": 4.0 },
+  { "id": 9, "name": "קערת כוסמת ירוקה", "calories": 200, "protein": 6.0 },
+  { "id": 10, "name": "חצי קופסאת קוטג'", "calories": 125, "protein": 13.0 },
+  { "id": 11, "name": "שליש בירה", "calories": 140, "protein": 1.0 },
+  { "id": 12, "name": "חצי בירה", "calories": 210, "protein": 1.5 },
+  { "id": 13, "name": "כוס יין", "calories": 120, "protein": 0.1 },
+  { "id": 14, "name": "שוט וויסקי", "calories": 105, "protein": 0.0 },
+  { "id": 15, "name": "פרוסת עוגה", "calories": 350, "protein": 4.0 },
+  { "id": 16, "name": "שעועית ירוקה 200 גרם", "calories": 62, "protein": 3.6 },
+  { "id": 17, "name": "משולש פיצה ביתי", "calories": 250, "protein": 10.0 },
+  { "id": 18, "name": "10 בוטנים", "calories": 60, "protein": 2.5 },
+  { "id": 19, "name": "פרוסת גבינה צהובה", "calories": 90, "protein": 7.0 },
+  { "id": 20, "name": "המבורגר צמחוני בלחמניה", "calories": 380, "protein": 18.0 },
+  { "id": 21, "name": "קוביית שוקולד", "calories": 30, "protein": 0.3 }
+]
